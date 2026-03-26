@@ -1,0 +1,10 @@
+.board {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.cols4 { grid-template-columns: repeat(4, 1fr); }
+.cols6 { grid-template-columns: repeat(6, 1fr); }
