@@ -13,6 +13,10 @@ export default function GameBoard({ cards, difficulty, onFlip }: Props) {
   const { cols } = DIFFICULTY_CONFIG[difficulty];
   const colClass = cols === 4 ? styles.cols4 : styles.cols6;
 
+  if (cards.length === 0) {
+    return <div className={`${styles.board} ${colClass}`} style={{ maxWidth: cols === 6 ? 560 : 400, minHeight: 200 }} />;
+  }
+
   return (
     <div className={`${styles.board} ${colClass}`} style={{ maxWidth: cols === 6 ? 560 : 400 }}>
       {cards.map(card => (

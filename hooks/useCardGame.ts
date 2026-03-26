@@ -5,10 +5,10 @@ import { GameState, Difficulty } from '@/lib/card-flip/types';
 import { buildCards } from '@/lib/card-flip/engine';
 import { DIFFICULTY_CONFIG, FLIP_DELAY_MS } from '@/lib/card-flip/constants';
 
-function makeInitialState(difficulty: Difficulty): GameState {
+function makeInitialState(difficulty: Difficulty, withCards = false): GameState {
   const { pairs } = DIFFICULTY_CONFIG[difficulty];
   return {
-    cards: buildCards(difficulty),
+    cards: withCards ? buildCards(difficulty) : [],
     flippedIndices: [],
     matchedPairs: 0,
     totalPairs: pairs,
@@ -21,7 +21,12 @@ function makeInitialState(difficulty: Difficulty): GameState {
 }
 
 export function useCardGame() {
+  // SSR/클라이언트 hydration 불일치 방지: 카드는 클라이언트 마운트 후 생성
   const [state, setState] = useState<GameState>(() => makeInitialState('4x4'));
+
+  useEffect(() => {
+    setState(s => ({ ...s, cards: buildCards(s.difficulty) }));
+  }, []);
   const lockRef = useRef(false);   // prevents triple-flip during match check
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -95,12 +100,12 @@ export function useCardGame() {
 
   const resetGame = useCallback((difficulty?: Difficulty) => {
     lockRef.current = false;
-    setState(s => makeInitialState(difficulty ?? s.difficulty));
+    setState(s => makeInitialState(difficulty ?? s.difficulty, true));
   }, []);
 
   const setDifficulty = useCallback((difficulty: Difficulty) => {
     lockRef.current = false;
-    setState(makeInitialState(difficulty));
+    setState(makeInitialState(difficulty, true));
   }, []);
 
   return { state, flipCard, resetGame, setDifficulty };
